@@ -18,7 +18,7 @@ function radioCommand($radioID, $command, $desiredLine = "", $shortResponse = 0)
     $shortSwitch = "";
     if ($shortResponse == 1)
         $shortSwitch = " -s 1 ";
-    $commandToRun = "nrfcl -t " . $radio['rxAddress0'] . " -r " . $radio['txAddress'] . " " . $shortSwitch . $command;
+    $commandToRun = "nrfcontrol -t " . $radio['rxAddress0'] . " -r " . $radio['txAddress'] . " " . $shortSwitch . $command;
     //echo $commandToRun;
     // Sometimes we want more than one line of the result or we don't care
     if ($desiredLine == "") {
@@ -225,7 +225,7 @@ function newRadio($name = "", $description = "", $location = "") {
     global $db;
     //First see if there is a radio there using default address
     $returnArray = array();
-    exec("nrfcl -t f0f0f0f001 -r f0f0f0f001 gi", $returnArray);
+    exec("nrfcontrol -t f0f0f0f001 -r f0f0f0f001 gi", $returnArray);
     if (!isset($returnArray[0]) or strpos($returnArray[0], "ok") === false) {
         echo "No radio communication";
         return false;
@@ -252,7 +252,7 @@ function newRadio($name = "", $description = "", $location = "") {
 
     // Now actually send the changes to the radio
     // set the receive frequency to the new frequency
-    $command = "nrfcl -t f0f0f0f001 -r f0f0f0f001 RC:0:0x$freq";
+    $command = "nrfcontrol -t f0f0f0f001 -r f0f0f0f001 RC:0:0x$freq";
     $returnArray = 0;
     exec($command, $returnArray);
     if (count($returnArray) < 2) {
@@ -260,7 +260,7 @@ function newRadio($name = "", $description = "", $location = "") {
         return false;
     }
     // set the transmit frequency to the new frequency
-    $command = "nrfcl -t $freq -r $freq RC:T:0x$freq";
+    $command = "nrfcontrol -t $freq -r $freq RC:T:0x$freq";
     $returnArray = 0;
     exec($command, $returnArray);
     if (count($returnArray) < 2) {
@@ -277,7 +277,7 @@ function existingNewRadio($name = "", $description = "", $location = "", $freq) 
     global $db;
     //First see if there is a radio there using default address
     $returnArray = array();
-    exec("nrfcl -t $freq -r $freq gi", $returnArray);
+    exec("nrfcontrol -t $freq -r $freq gi", $returnArray);
     if (!isset($returnArray[0]) or strpos($returnArray[0], "ok") === false) {
         echo "No radio communication!<br/>";
         print_r($returnArray);
@@ -337,10 +337,10 @@ function existingNewRadio($name = "", $description = "", $location = "", $freq) 
         echo $db->lastErrorMsg();
     $radioID = $db->lastInsertRowID();
     // save setup
-    $command = "nrfcl -t $freq -r $freq SA";
+    $command = "nrfcontrol -t $freq -r $freq SA";
     exec($command, $returnArray);
     // set clock
-    $command = "nrfcl -t $freq -r $freq";
+    $command = "nrfcontrol -t $freq -r $freq";
     exec($command, $returnArray);
     // get info from the radio
     processRadio($radioID);
